@@ -15,10 +15,10 @@ export function Statistics({good, neutral, bad, total, positivePercentage}) {
             </li>
         </ul>
         <p>
-          Total: <span>{total()}</span>
+          Total: <span>{total}</span>
         </p>
         <p>
-          Positive feedback: <span>{positivePercentage()}%</span>
+          Positive feedback: <span>{positivePercentage}%</span>
         </p>
       </StatisticsBox>
     );

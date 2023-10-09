@@ -1,54 +1,59 @@
-import { Component } from 'react';
-import { Section } from 'components/Section/Section';
 import { FeedbackOptions } from 'components/FeedbackOptions/FeedbackOptions';
-import { Statistics } from 'components/Statistics/Statistics';
 import { Notification } from 'components/Notification/Notification';
+import { Section } from 'components/Section/Section';
+import { Statistics } from 'components/Statistics/Statistics';
+import { useReducer } from 'react';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+const initialState = {
+  good: 0,
+  neutral: 0,
+  bad: 0,
+};
+
+function fbCounter(st, { type }) {
+  return {
+    ...st,
+    [type]: st[type] + 1,
   };
+}
 
-  handleOptions = ({ target: { name } }) => {
-    this.setState(prevState => ({
-      [name]: prevState[name] + 1,
-    }));
-  };
+export function App() {
+  const [fbState, fbDispatch] = useReducer(fbCounter, initialState);
+  const { good, neutral, bad } = fbState;
 
-  countTotalFeedback = () =>
-    Object.keys(this.state).reduce((acc, el) => acc + this.state[el], 0);
+  const countTotalFeedback = () =>
+    Object.keys(fbState).reduce((acc, el) => acc + fbState[el], 0);
 
-  countPositiveFeedbackPercentage = () =>
-    this.state.good
-      ? ((100 / this.countTotalFeedback()) * this.state.good).toFixed()
+  const countPositiveFeedbackPercentage = () =>
+    good
+      ? ((100 / countTotalFeedback()) * good).toFixed()
       : 0;
 
-  render() {
-    const { good, neutral, bad } = this.state;
-    return (
-      <>
-        <Section title="Please leave feedback">
-          <div className="options">
-            <FeedbackOptions
-              options={Object.keys(this.state)}
-              onLeaveFeedback={this.handleOptions}
-            />
-          </div>
-        </Section>
-          <Section title={'Statistics'}>
-        {good || neutral || bad ? 
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={this.countTotalFeedback}
-              positivePercentage={this.countPositiveFeedbackPercentage}
-            />
-        : <Notification message="There is no feedback"/>}
-          </Section>
-      </>
-    );
-  }
+  const haveFb = good || neutral || bad;
+
+  return (
+    <>
+      <Section title="Please leave feedback">
+        <div className="options">
+          <FeedbackOptions
+            options={Object.keys(fbState)}
+            onLeaveFeedback={fbDispatch}
+          />
+        </div>
+      </Section>
+      <Section title={'Statistics'}>
+        {haveFb ? (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={countTotalFeedback()}
+            positivePercentage={countPositiveFeedbackPercentage()}
+          />
+        ) : (
+          <Notification message="There is no feedback" />
+        )}
+      </Section>
+    </>
+  );
 }
